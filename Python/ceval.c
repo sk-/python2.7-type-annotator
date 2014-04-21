@@ -16,6 +16,7 @@
 #include "eval.h"
 #include "opcode.h"
 #include "structmember.h"
+#include "extra/typeannotations.h"
 
 #include <ctype.h>
 
@@ -2658,6 +2659,8 @@ PyEval_EvalFrameEx(PyFrameObject *f, int throwflag)
         case CALL_FUNCTION:
         {
             PyObject **sp;
+            PyObject* string_call = TypeAnnotations_CallToPyString(
+                stack_pointer, oparg, opcode);
             PCALL(PCALL_ALL);
             sp = stack_pointer;
 #ifdef WITH_TSC
@@ -2665,6 +2668,7 @@ PyEval_EvalFrameEx(PyFrameObject *f, int throwflag)
 #else
             x = call_function(&sp, oparg);
 #endif
+            TypeAnnotations_Record(x, string_call);
             stack_pointer = sp;
             PUSH(x);
             if (x != NULL)
@@ -2676,6 +2680,8 @@ PyEval_EvalFrameEx(PyFrameObject *f, int throwflag)
         case CALL_FUNCTION_KW:
         case CALL_FUNCTION_VAR_KW:
         {
+            PyObject* string_call = TypeAnnotations_CallToPyString(
+                stack_pointer, oparg, opcode);
             int na = oparg & 0xff;
             int nk = (oparg>>8) & 0xff;
             int flags = (opcode - CALL_FUNCTION) & 3;
@@ -2711,6 +2717,7 @@ PyEval_EvalFrameEx(PyFrameObject *f, int throwflag)
                 w = POP();
                 Py_DECREF(w);
             }
+            TypeAnnotations_Record(x, string_call);
             PUSH(x);
             if (x != NULL)
                 continue;

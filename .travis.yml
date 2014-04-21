@@ -1,0 +1,3 @@
+language: c
+install: ./configure && make
+script: ./test.sh

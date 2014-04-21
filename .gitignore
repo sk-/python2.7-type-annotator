@@ -44,3 +44,6 @@ tags
 .coverage
 coverage/
 htmlcov/
+platform
+pybuilddir.txt
+@test_*_tmp

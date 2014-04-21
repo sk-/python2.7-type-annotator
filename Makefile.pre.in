@@ -390,6 +390,11 @@ OBJECT_OBJS=	\
 
 
 ##########################################################################
+# objects for type annotation
+EXTRA_OBJS= extra/typeannotations.o
+
+
+##########################################################################
 # objects that get linked into the Python library
 LIBRARY_OBJS=	\
 		Modules/getbuildinfo.o \
@@ -398,7 +403,9 @@ LIBRARY_OBJS=	\
 		$(PYTHON_OBJS) \
 		$(MODULE_OBJS) \
 		$(SIGNAL_OBJS) \
-		$(MODOBJS)
+		$(MODOBJS) \
+		$(EXTRA_OBJS)
+
 
 #########################################################################
 # Rules
@@ -473,6 +480,7 @@ $(LIBRARY): $(LIBRARY_OBJS)
 	$(AR) $(ARFLAGS) $@ $(PYTHON_OBJS)
 	$(AR) $(ARFLAGS) $@ $(MODULE_OBJS) $(SIGNAL_OBJS)
 	$(AR) $(ARFLAGS) $@ $(MODOBJS)
+	$(AR) $(ARFLAGS) $@ $(EXTRA_OBJS)
 	$(RANLIB) $@
 
 libpython$(VERSION).so: $(LIBRARY_OBJS)

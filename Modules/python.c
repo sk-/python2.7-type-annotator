@@ -1,6 +1,7 @@
 /* Minimal main program -- everything is loaded from the library */
 
 #include "Python.h"
+#include "extra/typeannotations.h"
 
 #ifdef __FreeBSD__
 #include <floatingpoint.h>
@@ -9,6 +10,7 @@
 int
 main(int argc, char **argv)
 {
+	TypeAnnotations_Init();
 	/* 754 requires that FP exceptions run in "no stop" mode by default,
 	 * and until C vendors implement C99's ways to control FP exceptions,
 	 * Python requires non-stop mode.  Alas, some platforms enable FP
