@@ -12,7 +12,7 @@ rm -rf $PYTHON_SRC 2> /dev/null;
 mkdir $PYTHON_SRC;
 cd $PYTHON_SRC;
 wget $PYTHON_URL;
-tar zxfv $PYTHON_FILE;
+tar zxf $PYTHON_FILE;
 cd $PYTHON_VERSION;
 
 # Copy required source
@@ -25,9 +25,9 @@ patch Modules/python.c < $BASE/patches/python.c.patch;
 patch Makefile.pre.in < $BASE/patches/Makefile.pre.in.patch;
 
 # Build
-./configure --prefix=`readlink -f .`;
-make
-make install
+./configure --quiet --prefix=`readlink -f .`;
+make --quiet
+make --quiet install
 
 # Create a symlink in the base directory
 ln -s `readlink -f ./bin/python` $BASE/$PYTHON_NAME;
