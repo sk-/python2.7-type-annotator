@@ -13,6 +13,11 @@ check_return_code() {
 	fi
 }
 
+stats() {
+	echo "Size:" `du -hc /tmp/python-types-* | tail -n 1 | cut -f 1`;
+	echo "Lines:" `cat /tmp/python-types-* | wc -l`;
+}
+
 # trap keyboard interrupt (control-c)
 trap control_c SIGINT
 
@@ -37,6 +42,12 @@ rm $BASE_INSTALL/Lib/test/test_tempfile.py $BASE_INSTALL/Lib/test/test_uuid.py
 $PYTHON_EXE $BASE_INSTALL/Lib/test/regrtest.py;
 check_return_code 'Python test suite';
 
+stats;
+if [ "$TRAVIS" == "true" ]; then
+	echo "Running on travis, so exitting.";
+	exit 0;
+fi
+
 # Setup a virtualenv
 rm -rf $VIRTUALENV 2> /dev/null;
 mkdir $VIRTUALENV;
@@ -53,4 +64,7 @@ check_return_code 'Numpy';
 deactivate
 
 # Collect type information
+stats;
 sort -u /tmp/python-types-* | python remove_multiple.py > "${PYTHON_NAME}_annotations.tsv"
+echo "Size:" `du -hc "${PYTHON_NAME}_annotations.tsv" | tail -n 1 | cut -f 1`;
+echo "Lines:" `cat "${PYTHON_NAME}_annotations.tsv" | wc -l`;
