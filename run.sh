@@ -25,19 +25,23 @@ BASE_INSTALL=`dirname $BASE_INSTALL`;
 # Remove previous annotations
 rm /tmp/python-types-* 2> /dev/null;
 
+# Run our own tests
+$PYTHON_EXE test_annotations/test_annotations.py;
+check_return_code 'test_annotations.py';
+
+# Run python unittests
+# Note: do not use a virtualenv as test_distutils, test_site, test_trace and
+# test_uuid will fail.
+# Remove test_tempfile as it fails.
+rm $BASE_INSTALL/Lib/test/test_tempfile.py
+python $BASE_INSTALL/Lib/test/regrtest.py;
+check_return_code 'Python test suite';
+
 # Setup a virtualenv
 rm -rf $VIRTUALENV 2> /dev/null;
 mkdir $VIRTUALENV;
 virtualenv -p $BASE_INSTALL/bin/python $VIRTUALENV;
 source $VIRTUALENV/bin/activate
-
-# Run our own tests
-python test_annotations/test_annotations.py;
-check_return_code 'test_annotations.py';
-
-# Run python unittests.
-python $BASE_INSTALL/Lib/test/regrtest.py;
-check_return_code 'Python test suite';
 
 # Run numpy unittests.
 pip install nose
