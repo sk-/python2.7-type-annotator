@@ -1,0 +1,32 @@
+--- python2/Python-2.7.6/Makefile.pre.in	2013-11-10 08:36:41.000000000 +0100
++++ Makefile.pre.in	2014-04-21 15:41:45.598040351 +0200
+@@ -390,6 +390,11 @@
+ 
+ 
+ ##########################################################################
++# objects for type annotation
++EXTRA_OBJS= extra/typeannotations.o
++
++
++##########################################################################
+ # objects that get linked into the Python library
+ LIBRARY_OBJS=	\
+ 		Modules/getbuildinfo.o \
+@@ -398,7 +403,9 @@
+ 		$(PYTHON_OBJS) \
+ 		$(MODULE_OBJS) \
+ 		$(SIGNAL_OBJS) \
+-		$(MODOBJS)
++		$(MODOBJS) \
++		$(EXTRA_OBJS)
++
+ 
+ #########################################################################
+ # Rules
+@@ -473,6 +480,7 @@
+ 	$(AR) $(ARFLAGS) $@ $(PYTHON_OBJS)
+ 	$(AR) $(ARFLAGS) $@ $(MODULE_OBJS) $(SIGNAL_OBJS)
+ 	$(AR) $(ARFLAGS) $@ $(MODOBJS)
++	$(AR) $(ARFLAGS) $@ $(EXTRA_OBJS)
+ 	$(RANLIB) $@
+ 
