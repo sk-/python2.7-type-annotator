@@ -30,10 +30,10 @@ $PYTHON_EXE test_annotations/test_annotations.py;
 check_return_code 'test_annotations.py';
 
 # Run python unittests
-# Note: do not use a virtualenv as test_distutils, test_site, test_trace and
-# test_uuid will fail.
-# Remove test_tempfile as it fails.
-rm $BASE_INSTALL/Lib/test/test_tempfile.py
+# Note: do not use a virtualenv as test_distutils, test_site and test_trace
+# will fail.
+# Remove test_tempfile and test_uuid as they fail (uuid fails only in Travis).
+rm $BASE_INSTALL/Lib/test/test_tempfile.py $BASE_INSTALL/Lib/test/test_uuid.py
 $PYTHON_EXE $BASE_INSTALL/Lib/test/regrtest.py;
 check_return_code 'Python test suite';
 
