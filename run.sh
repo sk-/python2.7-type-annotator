@@ -34,7 +34,7 @@ check_return_code 'test_annotations.py';
 # test_uuid will fail.
 # Remove test_tempfile as it fails.
 rm $BASE_INSTALL/Lib/test/test_tempfile.py
-python $BASE_INSTALL/Lib/test/regrtest.py;
+$PYTHON_EXE $BASE_INSTALL/Lib/test/regrtest.py;
 check_return_code 'Python test suite';
 
 # Setup a virtualenv
