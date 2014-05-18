@@ -20,6 +20,7 @@ PYTHON_NAME="python2"
 VIRTUALENV="${PYTHON_NAME}_env";
 PYTHON_EXE=`readlink -f $PYTHON_NAME`;
 BASE_INSTALL=`dirname $PYTHON_EXE`;
+BASE_INSTALL=`dirname $BASE_INSTALL`;
 
 # Remove previous annotations
 rm /tmp/python-types-* 2> /dev/null;
@@ -27,22 +28,22 @@ rm /tmp/python-types-* 2> /dev/null;
 # Setup a virtualenv
 rm -rf $VIRTUALENV 2> /dev/null;
 mkdir $VIRTUALENV;
-virtualenv -p $BASE_INSTALL/python $VIRTUALENV;
+virtualenv -p $BASE_INSTALL/bin/python $VIRTUALENV;
 source $VIRTUALENV/bin/activate
 
 # Run our own tests
 python test_annotations/test_annotations.py;
-check_return_code('test_annotations.py');
+check_return_code 'test_annotations.py';
 
 # Run python unittests.
 python $BASE_INSTALL/Lib/test/regrtest.py;
-check_return_code('Python test suite');
+check_return_code 'Python test suite';
 
 # Run numpy unittests.
 pip install nose
 pip install numpy
 python -c 'import numpy; numpy.test()'
-check_return_code('Numpy');
+check_return_code 'Numpy';
 
 # Deactivate the virtualenv
 deactivate
