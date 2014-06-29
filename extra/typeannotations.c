@@ -78,11 +78,53 @@ PyObject* ModuleAsPyString(PyObject* object) {
     return NULL;
 }
 
+// Copied from Objects/typeobject.c
+static PyObject* type_name(PyTypeObject *type) {
+    const char *s;
+
+    if (type->tp_flags & Py_TPFLAGS_HEAPTYPE) {
+        PyHeapTypeObject* et = (PyHeapTypeObject*)type;
+
+        Py_INCREF(et->ht_name);
+        return et->ht_name;
+    }
+    else {
+        s = strrchr(type->tp_name, '.');
+        if (s == NULL)
+            s = type->tp_name;
+        else
+            s++;
+        return PyString_FromString(s);
+    }
+}
+
+// Modified from Object/classobject.c
+static PyObject* instance_repr(PyInstanceObject *inst) {
+    PyObject *classname, *mod;
+    char *cname;
+    classname = inst->in_class->cl_name;
+    mod = PyDict_GetItemString(inst->in_class->cl_dict, "__module__");
+    if (classname != NULL && PyString_Check(classname)) {
+        cname = PyString_AsString(classname);
+    } else {
+        cname = "?";
+    }
+    if (mod == NULL || !PyString_Check(mod)) {
+        return PyString_FromFormat("?.%s", cname);
+    } else {
+        return PyString_FromFormat("%s.%s", PyString_AsString(mod), cname);
+    }
+}
+
 PyObject* PyObject_CallAsPyString(PyObject* object);
 
 PyObject* PyObject_AsPyString(PyObject* object) {
     if (object == NULL) {
         return NULL;
+    }
+
+    if (PyInstance_Check(object)) {
+        return instance_repr((PyInstanceObject*) object);
     }
 
     return PyObject_CallAsPyString(Py_TYPE(object));
@@ -105,13 +147,6 @@ PyObject* PyObject_CallAsPyString(PyObject* object) {
         //Py_XDECREF(module);
         Py_XDECREF(self);
         Py_DECREF(function);
-        return result;
-    } else if (PyClass_Check(object)) {
-        // see class_repr in classobject.c
-        module = PyDict_GetItemString(((PyClassObject*)object)->cl_dict,
-                                      "__module__");  // shared-reference
-        class = ((PyClassObject*)object)->cl_name;
-        result = PyString_JoinWithDots(module, class);
         return result;
     } else if (PyMethod_Check(object)) {
         // See the implementation of instancemethod_repr
@@ -139,12 +174,20 @@ PyObject* PyObject_CallAsPyString(PyObject* object) {
     } else if (PyType_Check(object)) {
         module_tmp = PyObject_GetAttrString(object, "__module__");  // new reference
         module = ModuleAsPyString(module_tmp);
-        class = PyString_FromString(((PyTypeObject*)object)->tp_name);
+        class = type_name((PyTypeObject*)object);
+        // class = PyString_FromString(((PyTypeObject*)object)->tp_name);
         result = PyString_JoinWithDots(module, class);
         //Py_XDECREF(module);
         Py_XDECREF(module_tmp);
         Py_XDECREF(class);
 
+        return result;
+    } else if (PyClass_Check(object)) {
+        // see class_repr in classobject.c
+        module = PyDict_GetItemString(((PyClassObject*)object)->cl_dict,
+                                      "__module__");  // shared-reference
+        class = ((PyClassObject*)object)->cl_name;
+        result = PyString_JoinWithDots(module, class);
         return result;
     }
 

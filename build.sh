@@ -8,11 +8,13 @@ PYTHON_VERSION=`basename $PYTHON_FILE .tgz`;
 
 BASE=`pwd`;
 
-rm -rf $PYTHON_SRC 2> /dev/null;
-mkdir $PYTHON_SRC;
+mkdir $PYTHON_SRC 2> /dev/null;
 cd $PYTHON_SRC;
-wget $PYTHON_URL;
-tar zxf $PYTHON_FILE;
+# Download only if it does not exist
+if [ ! -f `basename $PYTHON_URL` ]; then
+	wget $PYTHON_URL;
+	tar zxf $PYTHON_FILE;
+fi
 cd $PYTHON_VERSION;
 
 # Copy required source
@@ -30,6 +32,7 @@ make --quiet
 make --quiet install
 
 # Create a symlink in the base directory
+rm $BASE/$PYTHON_NAME 2> /dev/null;
 ln -s `readlink -f ./bin/python` $BASE/$PYTHON_NAME;
 
 # Go back to where we started

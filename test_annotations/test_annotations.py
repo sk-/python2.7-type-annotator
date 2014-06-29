@@ -107,11 +107,13 @@ class TestAnnotations(unittest.TestCase):
             a = helpers.A()
             a.foo(1, [])
             helpers.A.foo(a, 1, [])
+            type(a)
 
         self.assertEqual(
             ['helpers.A()\thelpers.A',
              'helpers.A.foo(int, list)\tint',
-             'helpers.A.foo<U>(helpers.A, int, list)\tint'],  # <U> means the method is unbounded
+             'helpers.A.foo<U>(helpers.A, int, list)\tint',
+             'type(helpers.A)\ttype'],  # <U> means the method is unbounded
             types.get_annotations())
 
     def test_user_defined_function(self):
@@ -133,6 +135,30 @@ class TestAnnotations(unittest.TestCase):
              'helpers.foo(str, *args, **kwargs)\tstr',
              'helpers.foo(str, b=str, *args, **kwargs)\tstr'],
             types.get_annotations())
+
+    def test_c_class(self):
+        import cStringIO
+        with _TypeSentinel(self.annotations_file) as types:
+            b = cStringIO.StringIO()
+            type(b)
+
+        self.assertEqual(
+            ['cStringIO.StringIO()\tcStringIO.StringO',
+             'type(cStringIO.StringO)\ttype'],
+            types.get_annotations())
+
+    def test_old_style_class(self):
+        import StringIO
+        with _TypeSentinel(self.annotations_file) as types:
+            b = StringIO.StringIO()
+            type(b)
+
+        # We do not test for equality because the constructor of StringIO call
+        # many other methods.
+        self.assertLess(
+            set(['StringIO.StringIO()\tStringIO.StringIO',
+             'type(StringIO.StringIO)\ttype']),
+            set(types.get_annotations()))
 
 
 # TODO(skreft): add testst for method wrappers: int.__hash__(1), (1).__hash__()
